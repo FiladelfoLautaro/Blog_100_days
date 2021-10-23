@@ -1,0 +1,81 @@
+{% include "header.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+  <!-- Page Header -->
+  <header class="masthead" style="background-image: url('{{post.img_url}}')">
+    <div class="overlay"></div>
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+          <div class="post-heading">
+            <h1>{{post.title}}</h1>
+            <h2 class="subheading">{{post.subtitle}}</h2>
+            <span class="meta">Posted by
+              <a href="#">{{post.author.username}}</a>
+              on {{post.date}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Post Content -->
+  <article>
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+          {{ post.body|safe }}
+          <hr>
+
+          {% if current_user.id == 1 %}
+            <div class="clearfix">
+            <a class="btn btn-primary float-right" href="{{url_for('edit_post', post_id=post.id)}}">Edit Post</a>
+            </div>
+          {% endif %}
+
+<!--    Comments Area -->
+          <div class="col-lg-8 col-md-10 mx-auto comment">
+              <ul class="commentList">
+                {% for comment in post.post_comments %}
+                  <li>
+                    <div class="commenterImage">
+                      <img src="{{ 'zzz.sochi@gmail.com' | gravatar }}"/>
+                    </div>
+                    <div class="commentText">
+                      <p>{{ comment.body|safe }}</p>
+                      <span class="date sub-text">By {{ comment.author.username }} in {{ comment.date }}</span>
+                      {% if current_user.is_authenticated %}
+                        {% if comment in current_user.user_comments or current_user.id == 1 %}
+                          <a href="{{ url_for('delete_comment', comment_id=comment.id) }}" class="date sub-text">Delete Comment</a>
+                        {% endif %}
+                      {% endif %}
+                    </div>
+                  </li>
+                {% endfor %}
+              </ul>
+            </div>
+<!--      Comment TextPost-->
+         <div class="container">
+          <div class="row">
+            <div class="col-lg-12 col-md-10 mx-auto">
+              {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                  {% for message in messages %}
+                    <p class="alert-flash-message" style="color: red;">{{ message }}. <a href="{{ url_for('register') }}" style="color: blue;">Register</a></p>
+                  {% endfor %}
+                {% endif %}
+              {% endwith %}
+
+              {{ ckeditor.load() }}
+              {{ ckeditor.config(name='body') }}
+              {{ wtf.quick_form(form, novalidate=True, button_map={"submit": "primary"}) }}
+            </div>
+          </div>
+         </div>
+        </div>
+      </div>
+    </div>
+  </article>
+
+  <hr>
+{% include "footer.html" %}
